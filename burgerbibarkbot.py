@@ -28,7 +28,7 @@ class BurgerBibArkBot(ExistingPageBot):
             match = match[2:-2]
             match = match.split("|")
 
-            if len(match) > 1 and match[1]:
+            if len(match) > 1 and match[1].isnumeric():
                 ark = self.getARK(id=match[1])
 
                 if ark:
@@ -44,6 +44,21 @@ class BurgerBibArkBot(ExistingPageBot):
             replacement = "{{"+match+"}}"
             text = text.replace(to_replace, replacement)
 
+        """Search for non-persistent and obsolete links"""
+        regex_template = r"https?\:\/{2}(?:burgerbib\.scopeoais|katalog\.burgerbib)\.ch\/detail\.aspx\?ID\=[0-9]*"
+        matches = re.findall(regex_template, text, re.MULTILINE | re.IGNORECASE)
+
+        for match in matches:
+            to_replace = match
+            match = match.split("=")
+
+            if len(match) > 1 and match[1].isnumeric():
+                ark = self.getARK(id=match[1])
+
+                if ark:
+                    text = text.replace(to_replace, f"https://ark.burgerbib.ch/ark:36599/{ark[0]}")
+
+        
         self.put_current(text, summary=self.opt.summary)
 
 def main():
@@ -63,4 +78,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
