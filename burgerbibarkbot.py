@@ -21,7 +21,7 @@ class BurgerBibArkBot(ExistingPageBot):
     def treat_page(self):
         """Search and replace BurgerBib Templates without persistent links"""
         text = self.current_page.text
-        regex_template = r"{{BurgerBib\|.+}}"
+        regex_template = r"{{BurgerBib\|.+?}}"
         matches = re.findall(regex_template, text, re.MULTILINE)
 
         for match in matches:
@@ -79,4 +79,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
