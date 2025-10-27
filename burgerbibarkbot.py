@@ -12,6 +12,7 @@ class BurgerBibArkBot(ExistingPageBot):
     }
 
     def getARK(self, id):
+        """ Retrieve assigned name part of ARK from detailpage in catalogue """
         r = requests.get(f"https://katalog.burgerbib.ch/detail.aspx?ID={id}")
         regex_ark = r"(?<=ark:36599\/).+(?=\" )"
         ark = re.findall(regex_ark, r.text)
@@ -44,7 +45,7 @@ class BurgerBibArkBot(ExistingPageBot):
             replacement = "{{"+match+"}}"
             text = text.replace(to_replace, replacement)
 
-        """Search for non-persistent and obsolete links"""
+        """Search for non-persistent and obsolete links and replace them"""
         regex_template = r"https?\:\/{2}(?:burgerbib\.scopeoais|katalog\.burgerbib)\.ch\/detail\.aspx\?ID\=[0-9]*"
         matches = re.findall(regex_template, text, re.MULTILINE | re.IGNORECASE)
 
@@ -78,3 +79,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
