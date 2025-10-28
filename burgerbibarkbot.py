@@ -50,7 +50,7 @@ class BurgerBibArkBot(ExistingPageBot):
             replacement = "{{"+match+"}}"
             text = text.replace(to_replace, replacement)
 
-        """Search for non-persistent and obsolete links and replace them"""
+        """Search for non-persistent and obsolete links to VE and replace them"""
         regex_template = r"https?\:\/{2}(?:burgerbib\.scopeoais|katalog\.burgerbib)\.ch\/detail\.aspx\?ID\=[0-9]*"
         matches = re.findall(regex_template, text, re.MULTILINE | re.IGNORECASE)
 
@@ -63,13 +63,21 @@ class BurgerBibArkBot(ExistingPageBot):
                 if ark:
                     text = text.replace(to_replace, f"https://ark.burgerbib.ch/ark:36599/{ark[0]}")
 
-        """Search for archives-quickaccess.ch/bbb/person/* and replace them"""
-        regex_template = r"https?\:\/\/archives-quickaccess\.ch\/bbb\/person\/[0-9]*"
-        matches = re.findall(regex_template, text, re.MULTILINE)
+        """Search for non-persistent and obsolete links to descriptors and replace them"""
+        matches_quickaccess = re.findall(r"https?\:\/\/archives-quickaccess\.ch\/bbb\/person\/[0-9]*", text, re.MULTILINE | re.IGNORECASE)
+        matches_katalog = re.findall(r"https?\:\/\/katalog\.burgerbib\.ch\/parametersuche\.aspx\?DeskriptorId\=[0-9]*", text, re.MULTILINE | re.IGNORECASE)
         
-        for match in matches:
+        for match in matches_quickaccess:
             to_replace = match
             match = match.split("https://archives-quickaccess.ch/bbb/person/")[1]
+
+            ark = self.getARK(id=match,type="DESK")
+            if ark:
+                text = text.replace(to_replace, f"https://ark.burgerbib.ch/ark:36599/{ark[0]}")
+
+        for match in matches_katalog:
+            to_replace = match
+            match = match.split("http://katalog.burgerbib.ch/parametersuche.aspx?DeskriptorId=")[1]
 
             ark = self.getARK(id=match,type="DESK")
             if ark:
